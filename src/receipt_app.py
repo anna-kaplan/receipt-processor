@@ -1,6 +1,11 @@
+"""
+This is the main application file.
+It defines the Flask app, routes, and error handling.
+It uses flask_expects_json for request validation.
+"""
+import logging
 from flask import Flask, request, jsonify
 from flask_expects_json import expects_json
-import logging
 
 from src.config import Config, STATUS_CODE
 from src.receipt_storage import ReceiptStorage
@@ -23,18 +28,18 @@ def handle_invalid_json(error):
 
 
 @app.route('/receipts/process', methods=['POST'])
-@expects_json(request_schema)  # verifies json, otherwise returns status_code = 400 STATUS_CODE.INPUT_ERROR
+@expects_json(request_schema)  # verifies json, otherwise returns status_code = 400
 def process_receipt():
     try:
         receipt_id, _ = receipt_storage.process_receipt(request.get_json())
-        logger.info(f'Processed receipt, id={receipt_id}')
+        logger.info('Processed receipt id=%s', receipt_id)
 
         return jsonify({'id': receipt_id}), STATUS_CODE.SUCCESS
     except ReceiptIsDuplicate as e:
         message = str(e)
         logger.error(str(e))
         return jsonify({'message': message}), STATUS_CODE.INPUT_ERROR
-    except Exception as e:
+    except Exception as e:  # pylint: disable=broad-except
         message = f'An error occurred during receipt processing - {str(e)}'
         logger.error(message)
         return jsonify({'message': message}), STATUS_CODE.UNKNOWN_ERROR
@@ -48,8 +53,11 @@ def get_points(receipt_id):
     except ReceiptNotFound as e:
         logger.error(e.message)
         return jsonify({'message': e.message}), STATUS_CODE.NO_RECORD_FOUND
-    except Exception as e:
-        message = f'An unexpected error occurred while retrieving points for receipt ID={receipt_id} - {str(e)}'
+    except Exception as e:  # pylint: disable=broad-except
+        message = (
+            f'An unexpected error occurred while retrieving points'
+            f' for receipt ID={receipt_id} - {str(e)}'
+        )
         logger.error(message)
         return jsonify({'message': 'An unexpected error occurred.'}), STATUS_CODE.UNKNOWN_ERROR
 
@@ -62,8 +70,11 @@ def view_receipt(receipt_id):
     except ReceiptNotFound as e:
         logger.error(e.message)
         return jsonify({'message': e.message}), STATUS_CODE.NO_RECORD_FOUND
-    except Exception as e:
-        message = f'An unexpected error occurred while retrieving receipt ID={receipt_id} - {str(e)}'
+    except Exception as e:  # pylint: disable=broad-except
+        message = (
+            f'An unexpected error occurred while retrieving receipt ID={receipt_id} - {str(e)}'
+        )
+
         logger.error(message)
         return jsonify({'message': 'An unexpected error occurred.'}), STATUS_CODE.UNKNOWN_ERROR
 

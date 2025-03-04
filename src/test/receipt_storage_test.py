@@ -31,13 +31,17 @@ class ReceiptStorageTests(unittest.TestCase):
         self.assertEqual(result["retailer"], valid_receipt["retailer"])
         self.assertEqual(result["total"], float(valid_receipt["total"]))
 
-        date_time_string = "{} {}".format(valid_receipt["purchaseDate"], valid_receipt["purchaseTime"])
+        date_time_string = "{} {}".format(  # pylint: disable=consider-using-f-string
+            valid_receipt["purchaseDate"],
+            valid_receipt["purchaseTime"]
+            )
         self.assertEqual(
             result["purchaseDateTime"],
             datetime.datetime.strptime(date_time_string, DT_FORMAT)
         )
 
-        self.assertEqual(len(result["items"]), len(valid_receipt["items"]), "Number of items does not match")
+        self.assertEqual(len(result["items"]),
+                         len(valid_receipt["items"]))
         self.assertEqual(
             [r["shortDescription"] for r in result["items"]],
             [p["shortDescription"] for p in valid_receipt["items"]]
@@ -87,7 +91,7 @@ class ReceiptStorageTests(unittest.TestCase):
             'items_names_in3': 6,
             'odd_day': 6,
             'special_time': 0,
-        }, "Rule points calculation is incorrect")
+        })
 
     def test_calculate_receipt_points_multiple_of_25_daytime(self):
         receipt_data = {
@@ -118,13 +122,15 @@ class ReceiptStorageTests(unittest.TestCase):
 
     def test_get_receipt_invalid_id(self):
         receipt_id = "invalid_id"
-        with self.assertRaises(Exception, msg="Expected an exception for invalid receipt ID") as context:
+        with self.assertRaises(Exception,
+                               msg="Expected an exception for invalid receipt ID") as context:
             self.receipt_storage.get_receipt(receipt_id)
         self.assertEqual(str(context.exception), "No receipt found with id=invalid_id")
 
     def test_get_points_invalid_id(self):
         receipt_id = "invalid_id"
-        with self.assertRaises(Exception, msg="Expected an exception for invalid receipt ID") as context:
+        with self.assertRaises(Exception,
+                               msg="Expected an exception for invalid receipt ID") as context:
             self.receipt_storage.get_receipt_points(receipt_id)
         self.assertEqual(str(context.exception), "No receipt found with id=invalid_id")
 
@@ -142,7 +148,8 @@ class ReceiptStorageTests(unittest.TestCase):
             ]
         }
 
-        with self.assertRaises(ValueError, msg="Expected ValueError for future purchase date") as context:
+        with self.assertRaises(ValueError,
+                               msg="Expected ValueError for future purchase date") as context:
             Receipt(**receipt_data)
         self.assertEqual(str(context.exception), "Purchase date cannot be in the future")
 

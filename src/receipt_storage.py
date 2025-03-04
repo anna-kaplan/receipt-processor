@@ -2,6 +2,9 @@ from src.model.receipt import Receipt
 from src.exceptions import ReceiptNotFound, ReceiptIsDuplicate
 
 class ReceiptStorage:
+    """
+     manages in-memory storage of receipts. It includes logic to prevent duplicate entries.
+    """
     def __init__(self):
         self.receipt_storage = {}
         # to check for duplication on retailer+purchase_date_time
@@ -14,7 +17,9 @@ class ReceiptStorage:
     def process_receipt(self, input_data):
         receipt = Receipt(**input_data)
         if self.is_duplicate(receipt):
-            raise ReceiptIsDuplicate(f'Provided receipt is duplicate: {str(receipt.identifier_tuple())}')
+            raise ReceiptIsDuplicate(
+                f'Provided receipt is duplicate: {str(receipt.identifier_tuple())}'
+                )
 
         receipt_id = receipt.receipt_id
         self.receipt_storage[receipt_id] = receipt.to_dict()

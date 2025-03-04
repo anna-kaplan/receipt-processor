@@ -1,6 +1,10 @@
 import math
 
 class PointsCalculator:
+    """
+    This class contains the logic for calculating points based on the rules.
+    It uses a dictionary of rules for flexibility.
+    """
     # simplified version of points calculator
     rules = {
             "retailer_alnum": {
@@ -31,7 +35,8 @@ class PointsCalculator:
             },
             "special_time": {
                 'field': 'purchase_date_time',
-                'method': lambda purchase_date_time: 10 if 14 <= purchase_date_time.hour < 16 else 0,
+                'method': lambda purchase_date_time:
+                  10 if 14 <= purchase_date_time.hour < 16 else 0,
             },
         }
 
